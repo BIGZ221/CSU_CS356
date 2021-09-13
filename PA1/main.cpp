@@ -32,12 +32,15 @@ string verifyArgs(int argc, char* argv[]) {
   return "";
 }
 
-string readFile(string filename) {
-  string fileContents;
+string readFile(string filename, bool includeEndNewline = true) {
   fstream inStream(filename, fstream::in);
   stringstream tempStream;
   tempStream << inStream.rdbuf();
-  return tempStream.str();
+  string fileContents = tempStream.str();
+  if (!includeEndNewline && fileContents[fileContents.size()-1] == '\n') {
+    fileContents = fileContents.substr(0, fileContents.size() -1);
+  }
+  return fileContents;
 }
 
 int main(int argc, char *argv[]) {
@@ -53,8 +56,8 @@ int main(int argc, char *argv[]) {
   string operationMode = argv[5];
   fstream outStream(outputFile, fstream::out);
   string plaintext = readFile(inputFile);
-  string key = readFile(keyFile);
-  cout << (int) key[key.size()-1];
+  string key = readFile(keyFile, false);
+  cout << key << "\n";
   outStream << plaintext;
   outStream << plaintext;
 }
