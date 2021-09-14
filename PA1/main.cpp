@@ -89,18 +89,22 @@ void swap(int indexA, int indexB, string &value) {
   value[indexB] = temp;
 }
 
-string blockEncrypt(string key, string plaintext) {
-  string cipher = "";
+string stringXor(string key, string inputText) {
+  string output = "";
   for (size_t i = 0; i < key.size(); i++) {
-    cipher += key[i] ^ plaintext[i];
+    output += key[i] ^ inputText[i];
   }
+  return output;
+}
+
+string cryptSwap(string key, string inputText) {
   int start = 0;
-  int end = cipher.size() - 1;
+  int end = inputText.size() - 1;
   int keyIndex = 0;
   while (start != end) {
     bool shouldSwap = key[keyIndex] % 2;
     if (shouldSwap) {
-      swap(start, end, cipher);
+      swap(start, end, inputText);
       start++;
       end--;
     } else {
@@ -108,32 +112,19 @@ string blockEncrypt(string key, string plaintext) {
     }
     keyIndex = (keyIndex + 1) % key.size();
   }
+  return inputText;
+}
+
+string blockEncrypt(string key, string plaintext) {
+  string cipher = stringXor(key, plaintext);
+  cipher = cryptSwap(key, cipher);
   return cipher;
 }
 
 string blockDecrypt(string key, string cipherText) {
-  string plaintext = "";
-  string cipherCopy = cipherText;
-  int start = 0;
-  int end = cipherCopy.size() - 1;
-  int keyIndex = 0;
-  while (start != end) {
-    bool shouldSwap = key[keyIndex] % 2;
-    if (shouldSwap) {
-      swap(start, end, cipherCopy);
-      start++;
-      end--;
-    } else {
-      start++;
-    }
-    keyIndex = (keyIndex + 1) % key.size();
-  }
-  for (size_t i = 0; i < key.size(); i++) {
-    plaintext += key[i] ^ cipherCopy[i];
-  }
-  int padding = plaintext.find_first_of(0x81);
-  plaintext = plaintext.substr(0, padding);
-  return plaintext;
+  string unSwapped = cryptSwap(key, cipherText);
+  string plaintext = stringXor(key, unSwapped);
+  return plaintext.c_str();
 }
 
 string blockCipher(string key, string inputText, char operationMode) {
