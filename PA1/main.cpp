@@ -6,28 +6,30 @@
 
 using namespace std;
 
+const int PADDINGBYTE = 0x81;
+
 string verifyArgs(int argc, char* argv[]) {
   if (argc != 6) {
-    return "Incorrect number of arguments provided: " + to_string(argc - 1) + "\n";
+    return "Incorrect number of arguments provided expected 5 got: " + to_string(argc - 1) + "\n";
   }
   string cipherType = argv[1];
   if (cipherType != "B" && cipherType != "S") {
-    return "Invalid first argument: \"" + cipherType + "\" expected B or S\n";
+    return "[ Arg 1 ] Cipher type is invalid: \"" + cipherType + "\" expected B or S\n";
   }
   string inputFile = argv[2];
   if (!filesystem::exists(inputFile)) {
-    return "Input file \"" + inputFile + "\" does not exist\n";
+    return "[ Arg 2 ] Input file \"" + inputFile + "\" does not exist\n";
   }
   if (!string(argv[3]).length()) {
-    return "Output filename is not a valid string\n";
+    return "[ Arg 3 ] Output filename is not a valid string\n";
   }
   string keyFile = argv[4];
   if (!filesystem::exists(keyFile)) {
-    return "Key file \"" + keyFile + "\" does not exist\n";
+    return "[ Arg 4 ] Key file \"" + keyFile + "\" does not exist\n";
   }
   string operationMode = argv[5];
   if (operationMode != "E" && operationMode != "D") {
-    return "Mode of operation is invalid: \"" + operationMode +"\" expected E or D\n";
+    return "[ Arg 5 ] Mode of operation is invalid: \"" + operationMode +"\" expected E or D\n";
   }
   return "";
 }
@@ -45,7 +47,6 @@ string readFile(string filename, bool includeEndNewline = true) {
 
 // returns padded 16 byte string or "" if end of file reached
 string getPaddedBlock(fstream &inFile) {
-  int paddingByte = 0x81;
   int blockSize = 16;
   char block[blockSize + 1];
   block[blockSize] = 0x00;
@@ -56,7 +57,7 @@ string getPaddedBlock(fstream &inFile) {
   }
   if (readCount < blockSize) {
     for (int i = readCount; i < blockSize; i++) {
-      block[i] = paddingByte;
+      block[i] = PADDINGBYTE;
     }
   }
   return block;
@@ -72,12 +73,11 @@ string getBlock(string &inputText, int offset) {
 
 // returns padded 16 byte string
 string getPaddedBlock(string &inputText, int offset) {
-  int paddingByte = 0x81;
   size_t blockSize = 16;
   string block = getBlock(inputText, offset);
-  if (inputText.size() < blockSize) {
-    for (size_t i = inputText.size(); i < blockSize; i++) {
-      block[i] = paddingByte;
+  if (block.size() < blockSize) {
+    for (size_t i = block.size(); i < blockSize; i++) {
+      block.push_back(PADDINGBYTE);
     }
   }
   return block;
@@ -115,6 +115,14 @@ string cryptSwap(string key, string inputText) {
   return inputText;
 }
 
+string stripPadding(string inputText) {
+  int padding = inputText.find_first_of(PADDINGBYTE);
+  if (padding < 0) {
+    return inputText;
+  }
+  return inputText.substr(0, padding);
+}
+
 string blockEncrypt(string key, string plaintext) {
   string cipher = stringXor(key, plaintext);
   cipher = cryptSwap(key, cipher);
@@ -122,9 +130,10 @@ string blockEncrypt(string key, string plaintext) {
 }
 
 string blockDecrypt(string key, string cipherText) {
-  string unSwapped = cryptSwap(key, cipherText);
-  string plaintext = stringXor(key, unSwapped);
-  return plaintext.c_str();
+  string plaintext = cryptSwap(key, cipherText);
+  plaintext = stringXor(key, plaintext);
+  plaintext = stripPadding(plaintext);
+  return plaintext;
 }
 
 string blockCipher(string key, string inputText, char operationMode) {
@@ -148,26 +157,37 @@ string blockCipher(string key, string inputText, char operationMode) {
   }
 }
 
+string streamCipher(string key, string stream) {
+  string output = "";
+  int keyIndex = 0;
+  for (char x : stream) {
+    output += x ^ key[keyIndex];
+    keyIndex = (keyIndex + 1) % key.length();
+  }
+  return output;
+}
+
 int main(int argc, char *argv[]) {
+  const string programName = argv[0];
   string argError = verifyArgs(argc, argv);
   if (argError.length()) {
-    cout << argError << endl;
+    cerr << "[" + programName + "]: " << argError << endl;
     return -1;
   }
-  char cipherType = *argv[1];
-  string inputFile = argv[2];
-  string outputFile = argv[3];
-  string keyFile = argv[4];
-  char operationMode = *argv[5];
-  string key = readFile(keyFile, false);
-  string inputText = readFile(inputFile);
+  const char cipherType = *argv[1];
+  const string inputFile = argv[2];
+  const string outputFile = argv[3];
+  const string keyFile = argv[4];
+  const char operationMode = *argv[5];
+  const string key = readFile(keyFile, false);
+  const string inputText = readFile(inputFile);
   string outputText;
   switch (cipherType) {
     case 'B':
       outputText = blockCipher(key, inputText, operationMode);
-      cout << (int)outputText[outputText.size() - 5] << '\n';
       break;
     case 'S':
+      outputText = streamCipher(key, inputText);
       break;
   }
   fstream outStream(outputFile, fstream::out);
