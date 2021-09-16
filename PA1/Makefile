@@ -9,4 +9,4 @@ build:
 package:
 	tar cvzf $(TAR_NAME) $(FILES) Makefile README.md
 clean:
-	rm -f $(OUT_EXE)
+	rm -f $(OUT_EXE) $(TAR_NAME)
