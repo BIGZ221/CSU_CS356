@@ -143,7 +143,8 @@ string blockCipher(string key, string inputText, char operationMode) {
       for (size_t i = 0; i < inputText.size(); i += 16) {
         cipherText += blockEncrypt(key, getPaddedBlock(inputText, i));
       }
-      return cipherText;
+      string retVal = cipherText.c_str();
+      return retVal;
     }
     case 'D': {
       string plainText = "";
