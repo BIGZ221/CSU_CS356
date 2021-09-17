@@ -102,9 +102,9 @@ string stringXor(string key, string inputText) {
 
 string cryptSwap(string key, string inputText) {
   int start = 0;
-  int end = inputText.size() - 1;
+  int end = inputText.length() - 1;
   int keyIndex = 0;
-  while (start != end) {
+  while (start < end) {
     bool shouldSwap = (int) key[keyIndex] % 2;
     if (shouldSwap) {
       swapValues(start, end, inputText);
@@ -128,13 +128,11 @@ string stripPadding(string inputText) {
 
 string blockEncrypt(string key, string plaintext) {
   string cipher = stringXor(key, plaintext);
-  cipher = cryptSwap(key, cipher);
   return cipher;
 }
 
 string blockDecrypt(string key, string cipherText) {
-  string plaintext = cryptSwap(key, cipherText);
-  plaintext = stringXor(key, plaintext);
+  string plaintext = stringXor(key, cipherText);
   plaintext = stripPadding(plaintext);
   return plaintext;
 }
@@ -146,13 +144,14 @@ string blockCipher(string key, string inputText, char operationMode) {
       for (size_t i = 0; i < inputText.length(); i += 16) {
         cipherText += blockEncrypt(key, getPaddedBlock(inputText, i));
       }
-      string retVal = cipherText.c_str();
+      cipherText = cryptSwap(key, cipherText);
       return cipherText;
     }
     case 'D': {
       string plainText = "";
-      for (size_t i = 0; i < inputText.length(); i += 16) {
-        plainText += blockDecrypt(key, getBlock(inputText, i));
+      string unswapped = cryptSwap(key, inputText);
+      for (size_t i = 0; i < unswapped.length(); i += 16) {
+        plainText += blockDecrypt(key, getBlock(unswapped, i));
       }
       return plainText;
     }
