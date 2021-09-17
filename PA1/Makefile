@@ -5,7 +5,7 @@ OUT_EXE = main
 TAR_NAME = Zachary-Fuchs-$(ASSIGNMENT).tar
 CWARNINGS = -Wall -Wextra -std=c++17
 build:
-	$(CC) $(CWARNINGS) -o $(OUT_EXE) $(FILES) -lstdc++fs
+	$(CC) $(CWARNINGS) -o $(OUT_EXE) $(FILES)
 package:
 	tar cvzf $(TAR_NAME) $(FILES) Makefile README.md
 clean:
