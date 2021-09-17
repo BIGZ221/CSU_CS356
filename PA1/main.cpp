@@ -2,7 +2,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <filesystem>
 
 using namespace std;
 
@@ -17,16 +16,20 @@ string verifyArgs(int argc, char* argv[]) {
     return "[ Arg 1 ] Cipher type is invalid: \"" + cipherType + "\" expected B or S\n";
   }
   string inputFile = argv[2];
-  if (!filesystem::exists(inputFile)) {
+  fstream in(inputFile);
+  if (!in.is_open()) {
     return "[ Arg 2 ] Input file \"" + inputFile + "\" does not exist\n";
   }
+  in.close();
   if (!string(argv[3]).length()) {
     return "[ Arg 3 ] Output filename is not a valid string\n";
   }
   string keyFile = argv[4];
-  if (!filesystem::exists(keyFile)) {
+  fstream key(keyFile);
+  if (!key.is_open()) {
     return "[ Arg 4 ] Key file \"" + keyFile + "\" does not exist\n";
   }
+  key.close();
   string operationMode = argv[5];
   if (operationMode != "E" && operationMode != "D") {
     return "[ Arg 5 ] Mode of operation is invalid: \"" + operationMode +"\" expected E or D\n";
@@ -35,7 +38,7 @@ string verifyArgs(int argc, char* argv[]) {
 }
 
 string readFile(string filename, bool includeEndNewline = true) {
-  fstream inStream(filename, fstream::in);
+  fstream inStream(filename, fstream::in | fstream::binary);
   stringstream tempStream;
   tempStream << inStream.rdbuf();
   string fileContents = tempStream.str();
@@ -83,7 +86,7 @@ string getPaddedBlock(string &inputText, int offset) {
   return block;
 }
 
-void swap(int indexA, int indexB, string &value) {
+void swapValues(int indexA, int indexB, string &value) {
   char temp = value[indexA];
   value[indexA] = value[indexB];
   value[indexB] = temp;
@@ -91,8 +94,8 @@ void swap(int indexA, int indexB, string &value) {
 
 string stringXor(string key, string inputText) {
   string output = "";
-  for (size_t i = 0; i < key.size(); i++) {
-    output += key[i] ^ inputText[i];
+  for (size_t i = 0; i < inputText.length(); ++i) {
+    output += (int) key[i] ^ (int) inputText[i];
   }
   return output;
 }
@@ -102,15 +105,15 @@ string cryptSwap(string key, string inputText) {
   int end = inputText.size() - 1;
   int keyIndex = 0;
   while (start != end) {
-    bool shouldSwap = key[keyIndex] % 2;
+    bool shouldSwap = (int) key[keyIndex] % 2;
     if (shouldSwap) {
-      swap(start, end, inputText);
+      swapValues(start, end, inputText);
       start++;
       end--;
     } else {
       start++;
     }
-    keyIndex = (keyIndex + 1) % key.size();
+    keyIndex = (keyIndex + 1) % key.length();
   }
   return inputText;
 }
@@ -140,15 +143,15 @@ string blockCipher(string key, string inputText, char operationMode) {
   switch (operationMode) {
     case 'E': {
       string cipherText = "";
-      for (size_t i = 0; i < inputText.size(); i += 16) {
+      for (size_t i = 0; i < inputText.length(); i += 16) {
         cipherText += blockEncrypt(key, getPaddedBlock(inputText, i));
       }
       string retVal = cipherText.c_str();
-      return retVal;
+      return cipherText;
     }
     case 'D': {
       string plainText = "";
-      for (size_t i = 0; i < inputText.size(); i += 16) {
+      for (size_t i = 0; i < inputText.length(); i += 16) {
         plainText += blockDecrypt(key, getBlock(inputText, i));
       }
       return plainText;
@@ -158,14 +161,16 @@ string blockCipher(string key, string inputText, char operationMode) {
   }
 }
 
-string streamCipher(string key, string stream) {
-  string output = "";
+void streamCipher(string key, string inputFile, string outputFile) {
+  fstream inFile(inputFile, fstream::in | fstream::binary);
+  fstream outFile(outputFile, fstream::out | fstream::binary);
   int keyIndex = 0;
-  for (char x : stream) {
-    output += x ^ key[keyIndex];
+  char x;
+  while(inFile.get(x)) {
+    char res = x ^ key[keyIndex];
+    outFile << res;
     keyIndex = (keyIndex + 1) % key.length();
   }
-  return output;
 }
 
 int main(int argc, char *argv[]) {
@@ -181,16 +186,19 @@ int main(int argc, char *argv[]) {
   const string keyFile = argv[4];
   const char operationMode = *argv[5];
   const string key = readFile(keyFile, false);
-  const string inputText = readFile(inputFile);
-  string outputText;
   switch (cipherType) {
     case 'B':
-      outputText = blockCipher(key, inputText, operationMode);
-      break;
+      {
+        string inputText = readFile(inputFile);
+        string outputText = blockCipher(key, inputText, operationMode);
+        fstream outStream(outputFile, fstream::out | fstream::binary);
+        outStream << outputText;
+        break;
+      }
     case 'S':
-      outputText = streamCipher(key, inputText);
-      break;
+      {
+        streamCipher(key, inputFile, outputFile);
+        break;
+      }
   }
-  fstream outStream(outputFile, fstream::out);
-  outStream << outputText;
 }
