@@ -66,18 +66,20 @@ string getPaddedBlock(fstream &inFile) {
   return block;
 }
 
-string getBlock(string &inputText, int offset) {
+string getBlock(string &inputText, int offset, bool hasExternalPadding = false) {
   size_t blockSize = 16;
   char block[blockSize + 1];
   block[blockSize] = 0x00;
   inputText.copy(block, blockSize, offset);
-  return block;
+  if (hasExternalPadding) {
+    return block;
+  }
+  return string(block, blockSize);
 }
 
-// returns padded 16 byte string
 string getPaddedBlock(string &inputText, int offset) {
   size_t blockSize = 16;
-  string block = getBlock(inputText, offset);
+  string block = getBlock(inputText, offset, true);
   if (block.size() < blockSize) {
     for (size_t i = block.size(); i < blockSize; i++) {
       block.push_back(PADDINGBYTE);
@@ -133,7 +135,6 @@ string blockEncrypt(string key, string plaintext) {
 
 string blockDecrypt(string key, string cipherText) {
   string plaintext = stringXor(key, cipherText);
-  plaintext = stripPadding(plaintext);
   return plaintext;
 }
 
@@ -153,6 +154,7 @@ string blockCipher(string key, string inputText, char operationMode) {
       for (size_t i = 0; i < unswapped.length(); i += 16) {
         plainText += blockDecrypt(key, getBlock(unswapped, i));
       }
+      plainText = stripPadding(plainText);
       return plainText;
     }
     default:
