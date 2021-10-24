@@ -1,0 +1,11 @@
+Filesystem                                              Size  Used Avail Use% Mounted on
+udev                                                    966M     0  966M   0% /dev
+tmpfs                                                   200M  6.4M  193M   4% /run
+/dev/sda1                                                15G  2.8G   12G  20% /
+tmpfs                                                   997M     0  997M   0% /dev/shm
+tmpfs                                                   5.0M     0  5.0M   0% /run/lock
+tmpfs                                                   997M     0  997M   0% /sys/fs/cgroup
+users.isi.deterlab.net:/mnt/other/users/cos356av        1.9T  1.4T  415G  77% /users/cos356av
+users.isi.deterlab.net:/mnt/projects/proj/ColoState356  2.8T  1.3T  1.4T  49% /proj/ColoState356
+tmpfs                                                   200M     0  200M   0% /run/user/11501
+users.isi.deterlab.net:/mnt/share                       485G  234G  212G  53% /share

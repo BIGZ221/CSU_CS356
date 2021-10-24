@@ -1,0 +1,15 @@
+Zachary Fuchs
+zachf@colostate.edu
+cos356av
+
+Path						Desc
+./etc/wuer136intro-4.JPG			The Fly
+./var/log/136intro-3.jpg			It came from outer space
+./usr/share/pixmaps/xbzf136INTRO-1.jpg		Forbidden Planet
+./dev/136intro-2jjaj.JPEG			Godzilla
+./.hidden/asdf136Intro-5kqlw.jpeg		2001 a space odyssey
+
+1. The /var directory is used by the operating system to store data that is likely to change including admin data.
+2. The /dev directory contains special device files for all of the devices.
+3. In file diskfree.txt
+4. GenuineIntel
