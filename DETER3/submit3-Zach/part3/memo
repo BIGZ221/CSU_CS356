@@ -1,0 +1,22 @@
+1.	The security flaw  inside FCCU.php occured as a result of not validating the inputs
+	for the user's id and password. Thorugh not checking an attacker is able to input their
+	own SQL and log into any account they want. Doing so the Attacker is able to transfer
+	the entire balance of another user's account into another but they are unable to create
+	accounts or update the balances of an arbitrary account.
+2.	I would fix this flaw by including input validation to make sure the id field contained
+	only numbers on line 31. I would also implement a way to escape special characters from 
+	the password on line 32	entered by the user since the password field can also be abused
+	by the attacker to gain access to accounts without authorization. This fixes the flaw
+	since the attack mainly occurs as a result of input from the id and password fields.
+	Limiting the id field to numbers is a good solution since the id cannot be anything other
+	than numbers so if a non-number is entered it is obvious that its an attempted attack.
+	Escaping special characters in the password fixes the attack by disabling the attackers 
+	ability to inject SQL code without limiting the users ability to have a secure password.
+	On line 31 you could use the PHP filter_var() function. with second parameter 
+	FILTER_VALIDATE_NUMBER_INT. On Line 32 you could use mysqli_read_escape_string() 
+	function or you could fix the vulnerability by using prepared statements.
+3.	This breach was relatively serious given that the attacker had access to potentially every
+	account within the system but was unable to create new accounts or arbitrarily update account
+	balances. This attack did not allow the attacker root access either. To secure the server
+	the injection exploits should be patched using input validation and should be inspected for
+	further potential security exploits. 

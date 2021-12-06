@@ -1,0 +1,6 @@
+Caspian Siebert:
+	Caspian was responsible for working on the Filesystem Exploit portion
+	of Deter3 Lab. 
+Ryan Anderson: 
+	Ryan was responsible for working on the Buffer Overflow portion
+	of Deter3 Lab. 
