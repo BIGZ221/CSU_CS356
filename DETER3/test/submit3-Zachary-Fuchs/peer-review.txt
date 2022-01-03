@@ -1,0 +1,17 @@
+Caspian Siebert:
+	Caspian was responsible for working on the Filesystem Exploit portion
+	of Deter3 Lab. Caspian was successful in discovering and abusing the
+	file system exploit in part 2 while keeping the team notified about
+	any issues that occured and how we could help. Caspian was a good team
+	member and helped accomplish all goals we had for the project. Overall
+	I am happy with the results of this lab and had a fun time working with
+	Caspian.
+Ryan Anderson: 
+	Ryan was responsible for working on the Buffer Overflow portion
+	of Deter3 Lab. In the buffer overflow Ryan successfully discovered
+	and attacked the server using the buffer overflow vulnerability.
+	As a team member Ryan did his work in a timely manner and communicated
+	with Caspian and I about which part of the project he wanted to work
+	on as well as any issues he ran into while doing part 1. Overall Ryan
+	was a good teammate and we all accomplished the goals we set out to when
+	forming the group for this lab.

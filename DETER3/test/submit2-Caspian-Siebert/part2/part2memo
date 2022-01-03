@@ -1,0 +1,23 @@
+1. The security flaw that I found was in the usr/lib/cgi-bin/memo.cgi code.  The code
+uses a post request to display memos on the webface.  This means that a request can be
+sent for any file a user wishes to see.  The way the script check to see if a file
+should be displayed is by checking to see if the memo parameter has been assigned to
+anything.  While the purpose of this site is to only display company memos, the code
+can easily be exploited to see other files with elevated permissions.  All you need to
+do is add a post request to the url by appending ?memo=../../../filepath, and it will
+be displayed on the site.  This is called a filesystem exploit, or a ../ attack,
+becuase it exploits insufficient pathway validation to access restricted folders by
+climbing up parent directories.  So for my attack I used
+http://localhost/cgi-bin/memo.cgi?memo=../../../etc/shadow and I was able to display
+and store the hashed password file to a file called shadow.txt.
+
+2.  This is a pretty serious breach, considering that if someone gets ahold of the
+password file the the system, it makes it easy for them to crack into any user's
+account and do whatever else they want on the system.  Once they can get into a
+person's account, they would have access to everything that user has permission to do.
+Luckily there is utility called jail which cat set restrictions on processes within the
+jail.  This can be used to verify that the filepath being accessed has a realpath
+within the allowed directory and give an error if it's not.  In order to secure the
+system, some sort of check needs to be performed on the file being accessed by the memo
+program to determine if it falls within the folders that the process is actually
+allowed in.

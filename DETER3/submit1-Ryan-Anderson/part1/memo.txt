@@ -1,0 +1,13 @@
+Author: Ryan Anderson
+Class: CS356
+Assignment: DETERP3
+Project Partners: Zach Fuchs/Caspian Siebert
+
+Part 1 (Buffer Overflow) Memo: 
+Though originally believed to be a seperate problem, the attack performed was indeed likely conducted by a buffer overflow attack. Through a series of tests, and eventually through the creation of two scripts (exploit1.sh and payload1), I discovered that it was possible to overflow the server files by requesting a file with an exceptionally large filename twice in a row. In doing so, the server reaches a point where it can no longer access certain portions of the corrupted memory and crashes. 
+
+In order to replicate these crashes using the provided files, first ensure the server is hosted on port 90 (or alter the port found in the exploit1.sh script to contain the port number you used). Then, run the script by executing the command ./exploit1.sh TWO times. The first time it is run it will overflow the buffer to a certain degree, and the second time it will overload the servers memory and finally crash it. In order to fix this issue, we must sanitize the file request inputs so that no buffer overflow attacks can occur moving forward.
+
+While the above section proves that this buffer overflow attack can crash the server, it can additionally allow malicious users the ability to gain admin access by rewriting specific sections of the server code. This is a huge security risk (proven by the previous attacks we experienced) and we must reconfigure our code to prevent any future attacks of the same nature. Thankfully, we were able to restart the servers and flush the attacker out, but without further reconstruction of our server code we will be left extremely vulnerable to similar attacks in the future.
+
+Please consider immediately updating our server code to include sanitization of all inputs!
